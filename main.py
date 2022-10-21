@@ -14,7 +14,7 @@ def save_li():
     list_arr = []
     asis_arr = []
     messagebox.showinfo('Guardar', 'Lista Guardada con Éxito')
-    asistencia = db.connect("./databases/asistencia.db")
+    asistencia = db.connect("bin/databases/asistencia.db")
     asistenciacur = asistencia.cursor()
     asis_arr.append(acto.get())
     asis_arr.append(ubi.get())
@@ -53,30 +53,32 @@ def new_vol(event):
     global asis
     global vols_asis
     global vols
-    if vols_asis[cant - 1].get() != "":
-        volcur = vols.cursor()
-        for row in volcur.execute('SELECT NOMBRE, REG_GRAL FROM Relacion_de_Personal'):
-            if row[1] == vols_asis[cant - 1].get():
-                Label(asis, text=row[0]).grid(column=1, row=cant, columnspan=3, sticky=E)
-                vols_asis.append(Entry(asis, width=10))
-                vols_asis[cant].grid(column=0, row=cant + 1, sticky=E)
-                vols_asis[cant - 1].focus_force()
-                cant += 1
-                vols_asis[cant - 1].bind('<Tab>', new_vol)
-                break
+    for i in range(len(vols_asis)):
+        if vols_asis[i].get() != "":
+            volcur = vols.cursor()
+            for row in volcur.execute('SELECT NOMBRE, REG_GRAL FROM Relacion_de_Personal'):
+                if row[1] == vols_asis[i].get():
+                    Label(asis, text=row[0]).grid(column=1, row=i + 1, columnspan=3, sticky=W)
+                    break
+
+    if vols_asis[cant - 1].get() != "" and vols_asis[cant - 1] not in vols_asis:
+        cant += 1
+        vols_asis.append(Entry(asis, width=10))
+        vols_asis[cant - 1].grid(column=0, row=cant, sticky=E)
+        vols_asis[cant - 1].bind('<Tab>', new_vol)
 
 
 if __name__ == '__main__':
-    vols = db.connect('./databases/Relacion de personal.db')
+    vols = db.connect('bin/databases/Relacion de personal.db')
     root = Tk()
     root.title('Sistema de Registro de Asistencia')
     root.resizable(False, False)
     root.config(padx=5, pady=5)
     # root.iconbitmap()
     gen_inf = ttk.Button(root, text='Generar Informe Mensual', command=men_inf())
-    gen_inf.grid(column=0, row=0)
+    gen_inf.grid(column=0, row=0, sticky=W + E)
     save = ttk.Button(root, text='Guardar (F5)', command=save_li)
-    save.grid(column=0, row=1)
+    save.grid(column=0, row=1, sticky=W + E)
     ttk.Label(root, text='CORRELATIVO COMPAÑÍA: ').grid(column=1, row=1, sticky=S)
     in_corr_cia = ttk.Entry(root, width=12)
     in_corr_cia.grid(column=2, row=0, rowspan=2, sticky=S)
@@ -107,7 +109,7 @@ if __name__ == '__main__':
     Label(asis, text='ASISTENCIA VOLUNTARIOS.').grid(column=0, columnspan=5, row=0)
     vols_asis = [Entry(asis, width=10, textvariable=StringVar())]
     vols_asis[0].grid(column=0, row=cant, sticky=E)
-    vols_asis[cant - 1].bind('<Tab>', new_vol)
+    vols_asis[0].bind('<Tab>', new_vol)
     vols_asis[cant - 1].bind('<F5>', bind_save_li)
 
     root.mainloop()
