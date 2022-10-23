@@ -42,11 +42,12 @@ def save_li():
     asistenciacur.execute('INSERT INTO Asistencia {} VALUES {}'.format(list_tuple, asis_tuple))
     asistencia.commit()
     asistencia.close()
+    return
 
 
 def bind_save_li(event):
     save_li()
-
+    return
 
 def new_vol(event):
     global cant
@@ -58,15 +59,15 @@ def new_vol(event):
             volcur = vols.cursor()
             for row in volcur.execute('SELECT NOMBRE, REG_GRAL FROM Relacion_de_Personal'):
                 if row[1] == vols_asis[i].get():
-                    Label(asis, text=row[0]).grid(column=1, row=i + 1, columnspan=3, sticky=W)
+                    Label(asis, text=row[0]).grid(column=1, row=i + 1, columnspan=3, sticky=W + E)
                     break
 
-    if vols_asis[cant - 1].get() != "" and vols_asis[cant - 1] not in vols_asis:
+    if vols_asis[cant - 1].get() != "":
         cant += 1
         vols_asis.append(Entry(asis, width=10))
         vols_asis[cant - 1].grid(column=0, row=cant, sticky=E)
         vols_asis[cant - 1].bind('<Tab>', new_vol)
-
+    return
 
 if __name__ == '__main__':
     vols = db.connect('bin/databases/Relacion de personal.db')
@@ -109,7 +110,7 @@ if __name__ == '__main__':
     Label(asis, text='ASISTENCIA VOLUNTARIOS.').grid(column=0, columnspan=5, row=0)
     vols_asis = [Entry(asis, width=10, textvariable=StringVar())]
     vols_asis[0].grid(column=0, row=cant, sticky=E)
-    vols_asis[0].bind('<Tab>', new_vol)
+    vols_asis[0].bind('<Enter>', new_vol)
     vols_asis[cant - 1].bind('<F5>', bind_save_li)
 
     root.mainloop()
