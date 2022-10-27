@@ -49,25 +49,38 @@ def bind_save_li(event):
     save_li()
     return
 
+
 def new_vol(event):
     global cant
     global asis
     global vols_asis
     global vols
-    for i in range(len(vols_asis)):
-        if vols_asis[i].get() != "":
-            volcur = vols.cursor()
-            for row in volcur.execute('SELECT NOMBRE, REG_GRAL FROM Relacion_de_Personal'):
-                if row[1] == vols_asis[i].get():
-                    Label(asis, text=row[0]).grid(column=1, row=i + 1, columnspan=3, sticky=W + E)
-                    break
+    templi = []
+    for x in range(len(vols_asis)):
+        templi.append(vols_asis[x].get())
 
-    if vols_asis[cant - 1].get() != "":
+    def setLabels():
+        for i in range(len(vols_asis)):
+            if vols_asis[i].get() != "":
+                volcur = vols.cursor()
+                for row in volcur.execute('SELECT NOMBRE, REG_GRAL FROM Relacion_de_Personal'):
+                    if row[1] == vols_asis[i].get():
+                        Label(asis, text=row[0]).grid(column=1, row=i + 1, columnspan=3, sticky=W + E)
+                        break
+
+    def addEntry():
+        global cant
         cant += 1
-        vols_asis.append(Entry(asis, width=10))
+        vols_asis.append(Entry(asis, width=10, takefocus=1))
         vols_asis[cant - 1].grid(column=0, row=cant, sticky=E)
-        vols_asis[cant - 1].bind('<Tab>', new_vol)
+        vols_asis[cant - 1].bind('<Return>', new_vol)
+        vols_asis[cant - 1].focus_set()
+
+    setLabels()
+    if vols_asis[cant - 1].get() != "":
+        addEntry()
     return
+
 
 if __name__ == '__main__':
     vols = db.connect('bin/databases/Relacion de personal.db')
@@ -76,9 +89,9 @@ if __name__ == '__main__':
     root.resizable(False, False)
     root.config(padx=5, pady=5)
     # root.iconbitmap()
-    gen_inf = ttk.Button(root, text='Generar Informe Mensual', command=men_inf())
+    gen_inf = ttk.Button(root, text='Generar Informe Mensual', command=men_inf(), takefocus=0)
     gen_inf.grid(column=0, row=0, sticky=W + E)
-    save = ttk.Button(root, text='Guardar (F5)', command=save_li)
+    save = ttk.Button(root, text='Guardar (F5)', command=save_li, takefocus=0)
     save.grid(column=0, row=1, sticky=W + E)
     ttk.Label(root, text='CORRELATIVO COMPAÑÍA: ').grid(column=1, row=1, sticky=S)
     in_corr_cia = ttk.Entry(root, width=12)
@@ -108,9 +121,9 @@ if __name__ == '__main__':
     asis = Frame(root)
     asis.grid(row=3, column=0, columnspan=5, sticky=W)
     Label(asis, text='ASISTENCIA VOLUNTARIOS.').grid(column=0, columnspan=5, row=0)
-    vols_asis = [Entry(asis, width=10, textvariable=StringVar())]
+    vols_asis = [Entry(asis, width=10, textvariable=StringVar(), takefocus="")]
     vols_asis[0].grid(column=0, row=cant, sticky=E)
-    vols_asis[0].bind('<Enter>', new_vol)
+    vols_asis[0].bind('<Return>', new_vol)
     vols_asis[cant - 1].bind('<F5>', bind_save_li)
 
     root.mainloop()
