@@ -1,10 +1,14 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-import sqlite3 as db
+import mysql.connector as db
 import bin.resources.actions as Actions
 
-cant = 1
 
+cant = 1
+asistencia = db.connect(host="127.0.0.1",
+                        user="root",
+                        password="P@te1025",
+                        database="asistencia_anual")
 
 def informe_mensual():
     Actions.men_inf()
@@ -13,34 +17,16 @@ def informe_mensual():
 def save_li():
     global vols_asis
     try:
-        list_arr = []
-        asis_arr = []
-        asistencia = db.connect("bin/databases/asistencia.db")
+
         asistenciacur = asistencia.cursor()
-        asis_arr.append(acto.get())
-        asis_arr.append(ubi.get())
-        if ob:
-            asis_arr.append("OB")
-        asis_arr.append(dd.get())
-        asis_arr.append(mm.get())
-        asis_arr.append(yy.get())
-        asis_arr.append(in_corr_cia.get())
-        asis_arr.append(in_corr_gral.get())
-        list_arr.append("ACTO")
-        list_arr.append("DIRECCION")
-        list_arr.append("OBLIGATORIO")
-        list_arr.append("DIA")
-        list_arr.append("MES")
-        list_arr.append("AÑO")
-        list_arr.append("CORR_CIA")
-        list_arr.append("CORR_GRAL")
+        asis_arr = [in_corr_cia.get(), acto.get(), in_corr_gral.get(), dd.get(), mm.get(), yy.get(), ubi.get(), ob.get(),
+                    cant - 1]
+        # INSERTAR ASISTENCIA
         for i in range(len(vols_asis)):
             if vols_asis[i].get() != "":
-                list_arr.append(vols_asis[i].get())
-                asis_arr.append("A")
-        list_tuple = tuple(list_arr)
-        asis_tuple = tuple(asis_arr)
-        asistenciacur.execute('INSERT INTO Asistencia {} VALUES {}'.format(list_tuple, asis_tuple))
+                asistenciacur.execute("""INSERT INTO asistencia (corr_cia_acto, reg_gral_voluntario) VALUES (%s, %s)""", [in_corr_cia.get(), vols_asis[i].get()])
+        # INSERTAR ACTO
+        asistenciacur.execute('INSERT INTO actos VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)', asis_arr)
         asistencia.commit()
         asistencia.close()
         messagebox.showinfo('Guardar', 'Lista Guardada con Éxito')
@@ -59,7 +45,7 @@ def new_vol(event):
     global cant
     global asis
     global vols_asis
-    global vols
+    global asistencia
     templi = []
     for x in range(len(vols_asis)):
         templi.append(vols_asis[x].get())
@@ -67,8 +53,10 @@ def new_vol(event):
     def setLabels():
         for i in range(len(vols_asis)):
             if vols_asis[i].get() != "":
-                volcur = vols.cursor()
-                for row in volcur.execute('SELECT NOMBRE, REG_GRAL FROM Relacion_de_Personal'):
+                volcur = asistencia.cursor()
+                volcur.execute('SELECT nombre, reg_gral FROM bomberos')
+                result = volcur.fetchall()
+                for row in result:
                     if row[1] == vols_asis[i].get():
                         tk.Label(asis, text=row[0]).grid(column=1, row=i + 1, columnspan=3, sticky=tk.W + tk.E)
                         break
@@ -88,7 +76,6 @@ def new_vol(event):
 
 
 if __name__ == '__main__':
-    vols = db.connect('bin/databases/Relacion de personal.db')
     root = tk.Tk()
     root.title('Sistema de Registro de Asistencia')
     root.resizable(False, False)
@@ -104,8 +91,10 @@ if __name__ == '__main__':
     ttk.Label(root, text='CORRELATIVO GENERAL: ').grid(column=3, row=0, rowspan=2, sticky=tk.S)
     in_corr_gral = ttk.Entry(root, width=12)
     in_corr_gral.grid(column=4, row=0, rowspan=2, sticky=tk.S)
-    ob = tk.Checkbutton(root, text='OBLIGATORIA', takefocus=0, onvalue=True, offvalue=False)
-    ob.grid(column=1, row=0)
+    ob = tk.StringVar()
+    cb = tk.Checkbutton(root, text='OBLIGATORIA', takefocus=0, variable=ob, onvalue="OB", offvalue="AB")
+    cb.deselect()
+    cb.grid(column=1, row=0)
     ttk.Label(root, text='DÍA').grid(column=5, row=0)
     ttk.Label(root, text='MES').grid(column=6, row=0)
     ttk.Label(root, text='AÑO').grid(column=7, row=0)
