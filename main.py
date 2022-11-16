@@ -7,7 +7,7 @@ import bin.resources.actions as Actions
 cant = 1
 asistencia = db.connect(host="127.0.0.1",
                         user="root",
-                        password="P@te1025",
+                        password="root",
                         database="asistencia_anual")
 
 def informe_mensual():
