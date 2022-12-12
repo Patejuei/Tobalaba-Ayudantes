@@ -1,6 +1,8 @@
 import tkinter as tk
 import bin.resources.informes as informes
 import bin.resources.nueva_lista as nueva_lista
+import bin.resources.EditList as editar_lista
+import bin.resources.eBomberos as eBomberos
 
 
 class Main_menu(tk.Tk):
@@ -26,6 +28,8 @@ class Main_menu(tk.Tk):
         nueva_lista.NewList()
 
     def openEditList(self):
+        self.destroy()
+        editar_lista.EditList()
         return
 
     def openGenInform(self):
@@ -34,6 +38,8 @@ class Main_menu(tk.Tk):
         return
 
     def addVolunteer(self):
+        self.destroy()
+        eBomberos.eBomberos()
         return
 
 

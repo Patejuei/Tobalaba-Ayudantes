@@ -81,10 +81,9 @@ class NewList(tk.Tk):
         try:
             asistenciacur = self.asistencia.connection.cursor()
             asis_arr = [self.in_corr_cia.get(), self.acto.get(), self.in_corr_gral.get(), self.fecha.get_date(),
-                        self.ubi.get(), self.ob.get(),
-                        self.cant - 1]
+                        self.ubi.get(), self.ob.get()]
             # INSERTAR ACTO
-            asistenciacur.execute('INSERT INTO actos VALUES (%s, %s, %s, %s, %s, %s, %s)', asis_arr)
+            asistenciacur.execute('INSERT INTO actos VALUES (%s, %s, %s, %s, %s, %s)', asis_arr)
             # INSERTAR ASISTENCIA
             for i in range(len(self.vols_asis)):
                 if self.vols_asis[i].get() != "":
@@ -97,7 +96,7 @@ class NewList(tk.Tk):
 
 
         except Exception as e:
-            messagebox.showinfo('Guardar', 'Ha ocurrido un error')
+            messagebox.showinfo('Guardar', 'Ha ocurrido un error' + e)
         return
 
     def new_vol(self, *event):

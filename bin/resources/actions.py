@@ -30,7 +30,7 @@ def inf_men(mo, comb_mo):
     for row in cursor.fetchall():
         row = list(row)
         listas.append(row)
-    mensualPath = "bin/Informes/Asistencia.xlsx"
+    mensualPath = os.getcwd() + "bin/Informes/Asistencia.xlsx"
     month_search = int(mo.index(comb_mo.get()))
     # AGREGA EL CONTEO A LAS LISTAS
     for n in range(len(listas)):
@@ -60,8 +60,7 @@ def inf_men(mo, comb_mo):
     for n in range(len(listas)):
         listas[n].append((listas[n][4] / totalEfectivas[0][0]))
     # AGREGA LOS ACTOS DEL PERIODO
-    cursor.execute("""SELECT  a.reg_gral_voluntario, actos.corr_cia, actos.acto, actos.corr_gral, actos.fecha, actos.direccion, actos.lista FROM actos
-        INNER JOIN asistencia a on actos.corr_cia = a.corr_cia_acto
+    cursor.execute("""SELECT  corr_cia, acto, corr_gral, fecha, direccion, lista FROM actos
         WHERE MONTH(fecha) = %s""", (month_search,))
     for row in cursor.fetchall():
         actos.append(row)
@@ -75,7 +74,7 @@ def inf_men(mo, comb_mo):
     actdf.to_excel(xlwriter, sheet_name="Actos", header=headeractos, index=False)
     print(listdf)
     xlwriter.close()
-    # os.startfile(mensualPath)
+    os.startfile(mensualPath)
     return
 
 
@@ -100,8 +99,7 @@ def inf_90dias():
         if listas[n][2] != 0:
             listas.pop(n)
     # AGREGA LOS ACTOS DEL PERIODO
-    cursor.execute("""SELECT a.reg_gral_voluntario, corr_cia, acto, corr_gral, fecha, direccion, lista FROM actos
-    INNER JOIN asistencia a on actos.corr_cia = a.corr_cia_acto
+    cursor.execute("""SELECT corr_cia, acto, corr_gral, fecha, direccion, lista FROM actos
     WHERE fecha <= DATE_ADD(CURDATE(), INTERVAL 90 DAY)""")
     for row in cursor.fetchall():
         actos.append(row)

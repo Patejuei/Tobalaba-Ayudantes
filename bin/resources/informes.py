@@ -34,3 +34,7 @@ class InformesWin(tk.Tk):
     def back(self):
         self.destroy()
         menu.Main_menu()
+
+    def send_mail(self):
+        emisor = ""
+        body = """"""
